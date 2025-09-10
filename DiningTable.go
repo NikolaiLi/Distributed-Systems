@@ -3,13 +3,22 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println("Hello World")
+	for i := 0; i <= 5; i++ {
+		philosopher(i, false, false)
+		fork(1, 0)
+	}
 }
 
-func philosopher() {
-	fmt.Println("Philosopher")
+func philosopher(id int, right bool, left bool) {
+	if right && left == false {
+		fmt.Println("Taking Fork")
+		right = false
+		left = false
+	}
 }
 
-func fork() {
-	fmt.Println("Fork")
+func fork(id int, requests int) {
+	if requests == 1 {
+		// Do a goroutine
+	}
 }
