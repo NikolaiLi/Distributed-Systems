@@ -8,13 +8,15 @@ func main() {
 	}
 
 	for i := 0; i < 5; i++ {
-		// Instantiér filosofferne
-		// Tildel filosofferne deres gafler
+		left := i
+		right := (i + 1) % 5
+		go philosopher(i, forkChannels[left], forkChannels[right])
 	}
 
 }
 
 func philosopher(id int, right chan Request, left chan Request) {
+	
 	// Sende requests til højre og venstre gaffel
 	// Vente på svar
 	// print eating
