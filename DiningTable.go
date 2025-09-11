@@ -15,8 +15,7 @@ func main() {
 
 }
 
-func philosopher(id int, right chan Request, left chan Request) {
-	
+func philosopher(id int, left chan Request, right chan Request) {
 	// Sende requests til højre og venstre gaffel
 	// Vente på svar
 	// print eating
