@@ -5,7 +5,7 @@ import "fmt"
 func main() {
 	for i := 0; i <= 5; i++ {
 		philosopher(i, false, false)
-		fork(1, 0)
+		fork(i, 0)
 	}
 }
 
