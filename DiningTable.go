@@ -2,24 +2,27 @@ package main
 
 func main() {
 	for i := 1; i <= 5; i++ {
-		philosopher(i, false, false)
-		fork(i, 0)
+		go philosopher(i, false, false)
+		go fork(i, 0)
+		message := make(chan string)
 	}
 }
 
 func philosopher(id int, right bool, left bool) {
-	if right && left == false {
-		message := make(chan string)
-		go func() { message <- "request" }()
-
-		// Take both forks
-		right = true
-		left = true
-	}
+	// Sende requests til højre og venstre gaffel
+	// Vente på svar
+	// print eating
+	// Release og print thinking
 }
 
 func fork(id int, requests int) {
-	if requests == 1 {
-		// Do a goroutine
-	}
+	// Venter på requests
+	// Hvis en filosof beder om det, så giv gaflen
+	// Filosof releaser gaflen igen
+}
+
+type Request struct {
+	philosopherID int
+	action        string
+	reply         chan bool
 }
