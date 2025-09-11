@@ -1,21 +1,27 @@
 package main
 
 func main() {
-	for i := 1; i <= 5; i++ {
-		go philosopher(i, false, false)
-		go fork(i, 0)
-		message := make(chan string)
+	forkChannels := make([]chan Request, 5)
+	for i := 0; i < 5; i++ {
+		forkChannels[i] = make(chan Request)
+		go fork(i, forkChannels[i])
 	}
+
+	for i := 0; i < 5; i++ {
+		// Instantiér filosofferne
+		// Tildel filosofferne deres gafler
+	}
+
 }
 
-func philosopher(id int, right bool, left bool) {
+func philosopher(id int, right chan Request, left chan Request) {
 	// Sende requests til højre og venstre gaffel
 	// Vente på svar
 	// print eating
 	// Release og print thinking
 }
 
-func fork(id int, requests int) {
+func fork(id int, requests chan Request) {
 	// Venter på requests
 	// Hvis en filosof beder om det, så giv gaflen
 	// Filosof releaser gaflen igen
