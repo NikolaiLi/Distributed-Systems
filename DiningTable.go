@@ -16,6 +16,10 @@ func main() {
 }
 
 func philosopher(id int, left chan Request, right chan Request) {
+	response := "need fork"
+	replyChan := make(chan string)
+	joker := Request{philosopherID: id, action: " need fork", reply: replyChan }
+
 	// Sende requests til højre og venstre gaffel
 	// Vente på svar
 	// print eating
@@ -23,6 +27,14 @@ func philosopher(id int, left chan Request, right chan Request) {
 }
 
 func fork(id int, requests chan Request) {
+	taken := false
+	for { req := <-requests } {
+		if !taken && req == "need fork" {
+			taken = true
+			// send reply
+		}
+	}
+
 	// Venter på requests
 	// Hvis en filosof beder om det, så giv gaflen
 	// Filosof releaser gaflen igen
