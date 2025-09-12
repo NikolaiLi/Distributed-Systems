@@ -12,32 +12,38 @@ func main() {
 		right := (i + 1) % 5
 		go philosopher(i, forkChannels[left], forkChannels[right])
 	}
-
 }
 
 func philosopher(id int, left chan Request, right chan Request) {
-	response := "need fork"
-	replyChan := make(chan string)
-	joker := Request{philosopherID: id, action: " need fork", reply: replyChan }
+	replyChan := make(chan bool)
 
-	// Sende requests til højre og venstre gaffel
-	// Vente på svar
-	// print eating
-	// Release og print thinking
+	left <- Request{philosopherID: id, action: "take", reply: replyChan}
+	<-replyChan
+
+	right <- Request{philosopherID: id, action: "take", reply: replyChan}
+	<-replyChan
+
+	println("Philosopher", id, "is eating")
+
+	left <- Request{philosopherID: id, action: "release", reply: replyChan}
+	right <- Request{philosopherID: id, action: "release", reply: replyChan}
+
+	println("Philosopher", id, "is thinking")
 }
 
 func fork(id int, requests chan Request) {
 	taken := false
-	for { req := <-requests } {
-		if !taken && req == "need fork" {
+	for {
+		req := <-requests
+		if !taken && req.action == "take" {
 			taken = true
-			// send reply
+			req.reply <- true
+		}
+
+		if req.action == "release" {
+			taken = false
 		}
 	}
-
-	// Venter på requests
-	// Hvis en filosof beder om det, så giv gaflen
-	// Filosof releaser gaflen igen
 }
 
 type Request struct {
