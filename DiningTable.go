@@ -29,7 +29,7 @@ func main() {
 	}
 
 	wg.Wait()
-	fmt.Println("Alle filosoffer er færdige med at spise 3 gange.")
+	fmt.Println("The philosophers had a nice dinner")
 }
 
 func philosopher(id int, left chan Request, right chan Request, wg *sync.WaitGroup) {
