@@ -1,40 +1,45 @@
 package main
 
+import (
+	"fmt"
+	"sync"
+)
+
+type Request struct {
+	philosopherID int
+	action        string
+	reply         chan bool
+}
+
 func main() {
 	forkChannels := make([]chan Request, 5)
 
-	counter := make([]int, 5)
-	counterFlag := make([]bool, 5)
-
-	for i := 0; i < len(counter); i++ {
-		println("Philosopher", i, "is thinking")
-		if counter[i] >= 3 {
-			counterFlag[i] = true
-		} else {
-			counterFlag[i] = false
-		}
+	for i := 0; i < 5; i++ {
+		forkChannels[i] = make(chan Request)
+		go fork(i, forkChannels[i])
 	}
 
-	for i := 0; i < len(counterFlag); i++ {
-		if counterFlag[i] == false {
-			for i := 0; i < 5; i++ {
-				forkChannels[i] = make(chan Request)
-				go fork(i, forkChannels[i])
-			}
+	var wg sync.WaitGroup
+	wg.Add(5)
 
-			for i := 0; i < 5; i++ {
-				left := i
-				right := (i + 1) % 5
-				go philosopher(i, forkChannels[left], forkChannels[right], counter)
-			}
-		}
+	for i := 0; i < 5; i++ {
+		left := forkChannels[i]
+		right := forkChannels[(i+1)%5]
+		go philosopher(i, left, right, &wg)
 	}
+
+	wg.Wait()
+	fmt.Println("Alle filosoffer er færdige med at spise 3 gange.")
 }
 
-func philosopher(id int, left chan Request, right chan Request, counter []int) {
-	replyChan := make(chan bool)
+func philosopher(id int, left chan Request, right chan Request, wg *sync.WaitGroup) {
+	defer wg.Done()
+	meals := 0
 
-	for counter[id] < 3 {
+	for meals < 3 {
+
+		replyChan := make(chan bool)
+
 		if id != 4 {
 			left <- Request{philosopherID: id, action: "take", reply: replyChan}
 			<-replyChan
@@ -49,33 +54,42 @@ func philosopher(id int, left chan Request, right chan Request, counter []int) {
 			<-replyChan
 		}
 
-		println("Philosopher", id, "is eating")
-		counter[id]++
+		fmt.Println("Philosopher", id, "is eating")
+		meals++
 
-		left <- Request{philosopherID: id, action: "release", reply: replyChan}
-		right <- Request{philosopherID: id, action: "release", reply: replyChan}
+		left <- Request{philosopherID: id, action: "release", reply: nil}
+		right <- Request{philosopherID: id, action: "release", reply: nil}
 
-		println("Philosopher", id, "is thinking")
+		fmt.Println("Philosopher", id, "is thinking")
 	}
 }
 
 func fork(id int, requests chan Request) {
 	taken := false
+	var queue []Request
+
 	for {
 		req := <-requests
-		if !taken && req.action == "take" {
-			taken = true
-			req.reply <- true
-		}
-
-		if req.action == "release" {
-			taken = false
+		switch req.action {
+		case "take":
+			if !taken {
+				taken = true
+				if req.reply != nil {
+					req.reply <- true
+				}
+			} else {
+				queue = append(queue, req)
+			}
+		case "release":
+			if len(queue) > 0 {
+				next := queue[0]
+				queue = queue[1:]
+				if next.reply != nil {
+					next.reply <- true
+				}
+			} else {
+				taken = false
+			}
 		}
 	}
-}
-
-type Request struct {
-	philosopherID int
-	action        string
-	reply         chan bool
 }
