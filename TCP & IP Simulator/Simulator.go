@@ -1,14 +1,20 @@
 package main
 
 func main() {
-	go client()
-	go server()
+	serverToClientChannel := make(chan Request, 1)
+	ClientToServerChannel := make(chan Request, 1)
+
+	go client(ClientToServerChannel)
+	go server(serverToClientChannel)
 }
 
-func client() {
+type Request struct {
+}
+
+func client(requests chan Request) {
 
 }
 
-func server() {
+func server(requests chan Request) {
 
 }
